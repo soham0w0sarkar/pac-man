@@ -1,6 +1,13 @@
 #include <Game.h>
 
-Game::Game() : window(sf::VideoMode({896, 992}), "Pac-Man") {}
+Game::Game()
+    : window(
+        sf::VideoMode::getDesktopMode(),
+        "Pac-Man",
+        sf::State::Fullscreen
+    )
+{
+}
 
 void Game::run() {
   while (window.isOpen()) {
