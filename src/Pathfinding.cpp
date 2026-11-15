@@ -1,0 +1,29 @@
+#include <Pathfinding.h>
+
+sf::Vector2i Pathfinding::nextDirection(GhostId id, const PathContext &ctx) {
+  switch (id) {
+  case GhostId::Blinky:
+    return blinky(ctx);
+  case GhostId::Pinky:
+    return pinky(ctx);
+  case GhostId::Inky:
+    return inky(ctx);
+  case GhostId::Clyde:
+    return clyde(ctx);
+  }
+  return {0, 0};
+}
+
+sf::Vector2i Pathfinding::blinky(const PathContext &) { return {0, 0}; }
+sf::Vector2i Pathfinding::pinky(const PathContext &) { return {0, 0}; }
+sf::Vector2i Pathfinding::inky(const PathContext &) { return {0, 0}; }
+sf::Vector2i Pathfinding::clyde(const PathContext &) { return {0, 0}; }
+
+std::vector<sf::Vector2i>
+Pathfinding::legalDirections(const Maze &, sf::Vector2i, sf::Vector2i) {
+  return {};
+}
+
+sf::Vector2i Pathfinding::stepToward(const PathContext &, sf::Vector2i) {
+  return {0, 0};
+}
