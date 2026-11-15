@@ -22,11 +22,12 @@ add_executable(PacMan
 target_include_directories(PacMan PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(PacMan PRIVATE SFML::Graphics SFML::Window SFML::System)
 
-# Make assets available when running from the build directory
-add_custom_command(
-  TARGET PacMan
-  POST_BUILD
+
+add_custom_target(copy_assets ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory
           ${CMAKE_SOURCE_DIR}/assets
           $<TARGET_FILE_DIR:PacMan>/assets
+  COMMENT "Copying assets to build directory"
+  VERBATIM
 )
+add_dependencies(copy_assets PacMan)
