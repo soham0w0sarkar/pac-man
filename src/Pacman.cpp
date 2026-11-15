@@ -18,19 +18,21 @@ void Pacman::loadTextures() {
   const auto poweredClosedPath =
       findAsset("assets/sprites/pacman_powered_closed.png");
 
-  if (!openPath || !openTexture.loadFromFile(*openPath)) {
-    std::cerr << "Failed to load pacman.png\n";
-  }
-  if (!closedPath || !closedTexture.loadFromFile(*closedPath)) {
-    std::cerr << "Failed to load pacman_closed.png\n";
-  }
-  if (!poweredOpenPath || !poweredOpenTexture.loadFromFile(*poweredOpenPath)) {
-    std::cerr << "Failed to load pacman_powered.png\n";
-  }
-  if (!poweredClosedPath ||
-      !poweredClosedTexture.loadFromFile(*poweredClosedPath)) {
-    std::cerr << "Failed to load pacman_powered_closed.png\n";
-  }
+  auto load = [](const char *label, const auto &path, sf::Texture &texture) {
+    if (!path) {
+      std::cerr << "Missing asset: " << label << "\n";
+      return;
+    }
+    if (!texture.loadFromFile(*path)) {
+      std::cerr << "Failed to load " << label << " from " << path->string()
+                << "\n";
+    }
+  };
+
+  load("pacman.png", openPath, openTexture);
+  load("pacman_closed.png", closedPath, closedTexture);
+  load("pacman_powered.png", poweredOpenPath, poweredOpenTexture);
+  load("pacman_powered_closed.png", poweredClosedPath, poweredClosedTexture);
 
   openTexture.setSmooth(false);
   closedTexture.setSmooth(false);
