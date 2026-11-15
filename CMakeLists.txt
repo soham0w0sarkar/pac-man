@@ -16,7 +16,7 @@ add_executable(PacMan
   src/Maze.cpp
   src/Pathfinding.cpp
   src/Pellet.cpp
-  src/Player.cpp
+  src/Pacman.cpp
 )
 
 target_include_directories(PacMan PRIVATE ${CMAKE_SOURCE_DIR}/include)
