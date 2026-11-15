@@ -98,6 +98,7 @@ bool Pacman::update(float deltaTime) {
   if (collectedBerry) {
     powered = true;
     poweredTimer = 10.f;
+    speed = 200.f;
   }
 
   if (powered) {
@@ -105,6 +106,7 @@ bool Pacman::update(float deltaTime) {
     if (poweredTimer <= 0.f) {
       poweredTimer = 0.f;
       powered = false;
+      speed = 150.f;
     }
   }
 
