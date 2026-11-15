@@ -122,3 +122,7 @@ void Pacman::updateSprite() {
   else if (direction == sf::Vector2i{0, 1})
     sprite.setRotation(sf::degrees(90.f));
 }
+
+sf::Vector2i Pacman::getTile() const { return currentTile; }
+
+sf::Vector2f Pacman::getPosition() const { return position; }

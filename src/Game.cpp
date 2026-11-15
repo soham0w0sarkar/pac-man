@@ -1,3 +1,4 @@
+#include "Maze.h"
 #include <Assets.h>
 #include <Game.h>
 
@@ -5,9 +6,10 @@
 
 Game::Game()
     : window(sf::VideoMode::getDesktopMode(), "Pac-Man", sf::State::Fullscreen),
-      pacman(maze), titleText(font) {
+      pacman(maze), titleText(font), ghost(maze, sf::Color::Red) {
   maze.centerIn(window.getSize());
   pacman.spawn(maze);
+  ghost.spawn();
   loadFont();
 }
 
@@ -66,12 +68,28 @@ void Game::update() {
       scoreText->setOrigin({bounds.size.x, 0.f});
     }
   }
+
+  ghost.update(deltaTime);
+
+  if ((ghost.getPosition() - pacman.getPosition()).length() <
+      Maze::TILE_SIZE * 0.5f) {
+    pacman.spawn(maze);
+
+    const sf::Vector2i pacmanSpawn = maze.getPacmanSpawn();
+    const sf::Vector2i ghostTile = ghost.getTile();
+    const int dx = ghostTile.x - pacmanSpawn.x;
+    const int dy = ghostTile.y - pacmanSpawn.y;
+    if (dx * dx + dy * dy <= 5 * 5) {
+      ghost.spawn();
+    }
+  }
 }
 
 void Game::render() {
   window.clear(sf::Color::Black);
   maze.render(window);
   pacman.render(window);
+  ghost.render(window);
   window.draw(titleText);
   if (scoreText) {
     window.draw(*scoreText);

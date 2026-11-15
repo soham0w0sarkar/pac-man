@@ -56,7 +56,7 @@ void Maze::createMaze() {
        0, 0, 0, 0, 0, 1, 1, 2, 1, 0, 0, 0, 0, 0},
       {0, 0, 0, 0, 0, 1, 2, 1, 1, 0, 1, 1, 1, 0,
        0, 1, 1, 1, 0, 1, 1, 2, 1, 0, 0, 0, 0, 0},
-      {1, 1, 1, 1, 1, 1, 2, 1, 1, 0, 1, 0, 0, 0,
+      {1, 1, 1, 1, 1, 1, 2, 1, 1, 0, 1, 0, 0, 4,
        0, 0, 0, 1, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1},
       {0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0,
        0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0},
@@ -152,10 +152,22 @@ sf::Vector2f Maze::getWorldPosition(sf::Vector2i tile) const {
   return getWorldPosition(tile.y, tile.x);
 }
 
-sf::Vector2i Maze::getPlayerSpawn() const {
+sf::Vector2i Maze::getPacmanSpawn() const {
   for (int row = 0; row < getRows(); row++) {
     for (int col = 0; col < getColumns(); col++) {
       if (grid[row][col] == 5) {
+        return {col, row};
+      }
+    }
+  }
+
+  return {1, 1};
+}
+
+sf::Vector2i Maze::getGhostSpawn() const {
+  for (int row = 0; row < getRows(); row++) {
+    for (int col = 0; col < getColumns(); col++) {
+      if (grid[row][col] == 4) {
         return {col, row};
       }
     }
@@ -169,6 +181,18 @@ bool Maze::collectPellet(int row, int col) {
     return false;
 
   if (grid[row][col] == 2) {
+    grid[row][col] = 0;
+    return true;
+  }
+
+  return false;
+}
+
+bool Maze::collectBerry(int row, int col) {
+  if (row < 0 || row >= getRows() || col < 0 || col >= getColumns())
+    return false;
+
+  if (grid[row][col] == 3) {
     grid[row][col] = 0;
     return true;
   }

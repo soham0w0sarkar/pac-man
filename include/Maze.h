@@ -10,13 +10,16 @@ public:
   void render(sf::RenderWindow &window);
   void centerIn(sf::Vector2u windowSize);
 
-  sf::Vector2i getPlayerSpawn() const;
+  sf::Vector2i getPacmanSpawn() const;
+  sf::Vector2i getPlayerSpawn() const { return getPacmanSpawn(); }
+  sf::Vector2i getGhostSpawn() const;
   int getRows() const;
   int getColumns() const;
   bool isWall(int row, int column) const;
   sf::Vector2f getWorldPosition(int row, int column) const;
   sf::Vector2f getWorldPosition(sf::Vector2i tile) const;
   bool collectPellet(int row, int col);
+  bool collectBerry(int row, int col);
 
   static constexpr int TILE_SIZE = 32;
 

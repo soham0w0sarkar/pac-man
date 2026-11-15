@@ -11,6 +11,8 @@ public:
   void handleInput();
   bool update(float deltaTime);
   void render(sf::RenderWindow &window);
+  sf::Vector2i getTile() const;
+  sf::Vector2f getPosition() const;
 
 private:
   Maze &maze;
