@@ -1,7 +1,9 @@
 #pragma once
 
 #include <Maze.h>
+#include <Pacman.h>
 #include <SFML/Graphics.hpp>
+#include <optional>
 
 class Game {
 public:
@@ -12,7 +14,17 @@ private:
   sf::RenderWindow window;
 
   Maze maze;
+  Pacman pacman;
+  sf::Clock clock;
+
+  sf::Font font;
+  sf::Text titleText;
+
+  int score = 0;
+  std::optional<sf::Text> scoreText;
+
   void processEvents();
   void update();
   void render();
+  void loadFont();
 };
