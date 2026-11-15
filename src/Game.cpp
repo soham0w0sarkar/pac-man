@@ -73,14 +73,19 @@ void Game::update() {
 
   if ((ghost.getPosition() - pacman.getPosition()).length() <
       Maze::TILE_SIZE * 0.5f) {
-    pacman.spawn(maze);
-
-    const sf::Vector2i pacmanSpawn = maze.getPacmanSpawn();
-    const sf::Vector2i ghostTile = ghost.getTile();
-    const int dx = ghostTile.x - pacmanSpawn.x;
-    const int dy = ghostTile.y - pacmanSpawn.y;
-    if (dx * dx + dy * dy <= 5 * 5) {
+    if (pacman.isPowered()) {
+      score += 200;
       ghost.spawn();
+    } else {
+      pacman.spawn(maze);
+
+      const sf::Vector2i pacmanSpawn = maze.getPacmanSpawn();
+      const sf::Vector2i ghostTile = ghost.getTile();
+      const int dx = ghostTile.x - pacmanSpawn.x;
+      const int dy = ghostTile.y - pacmanSpawn.y;
+      if (dx * dx + dy * dy <= 5 * 5) {
+        ghost.spawn();
+      }
     }
   }
 }
