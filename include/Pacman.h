@@ -11,6 +11,7 @@ public:
   void handleInput();
   bool update(float deltaTime);
   void render(sf::RenderWindow &window);
+  bool isPowered() const;
   sf::Vector2i getTile() const;
   sf::Vector2f getPosition() const;
 
@@ -19,6 +20,8 @@ private:
 
   sf::Texture openTexture;
   sf::Texture closedTexture;
+  sf::Texture poweredOpenTexture;
+  sf::Texture poweredClosedTexture;
   sf::Sprite sprite;
 
   sf::Vector2f position;
@@ -32,7 +35,9 @@ private:
 
   float speed = 150.0f;
   float mouthTimer = 0.f;
+  float poweredTimer = 0.f;
   bool mouthOpen = true;
+  bool powered = false;
 
   void loadTextures();
   void updateSprite();

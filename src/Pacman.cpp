@@ -14,6 +14,9 @@ Pacman::Pacman(Maze &maze) : maze(maze), sprite(openTexture) {
 void Pacman::loadTextures() {
   const auto openPath = findAsset("assets/sprites/pacman.png");
   const auto closedPath = findAsset("assets/sprites/pacman_closed.png");
+  const auto poweredOpenPath = findAsset("assets/sprites/pacman_powered.png");
+  const auto poweredClosedPath =
+      findAsset("assets/sprites/pacman_powered_closed.png");
 
   if (!openPath || !openTexture.loadFromFile(*openPath)) {
     std::cerr << "Failed to load pacman.png\n";
@@ -21,13 +24,22 @@ void Pacman::loadTextures() {
   if (!closedPath || !closedTexture.loadFromFile(*closedPath)) {
     std::cerr << "Failed to load pacman_closed.png\n";
   }
+  if (!poweredOpenPath || !poweredOpenTexture.loadFromFile(*poweredOpenPath)) {
+    std::cerr << "Failed to load pacman_powered.png\n";
+  }
+  if (!poweredClosedPath ||
+      !poweredClosedTexture.loadFromFile(*poweredClosedPath)) {
+    std::cerr << "Failed to load pacman_powered_closed.png\n";
+  }
 
   openTexture.setSmooth(false);
   closedTexture.setSmooth(false);
+  poweredOpenTexture.setSmooth(false);
+  poweredClosedTexture.setSmooth(false);
 }
 
 void Pacman::spawn(Maze &maze) {
-  currentTile = maze.getPlayerSpawn();
+  currentTile = maze.getPacmanSpawn();
   targetTile = currentTile;
   direction = {0, 0};
   requestedDirection = {0, 0};
@@ -54,11 +66,13 @@ void Pacman::handleInput() {
 
 bool Pacman::update(float deltaTime) {
   bool collectedPellet = false;
+  bool collectedBerry = false;
 
   if (position == targetPosition) {
     currentTile = targetTile;
 
     collectedPellet = maze.collectPellet(currentTile.y, currentTile.x);
+    collectedBerry = maze.collectBerry(currentTile.y, currentTile.x);
 
     const int nextReqRow = currentTile.y + requestedDirection.y;
     const int nextReqCol = currentTile.x + requestedDirection.x;
@@ -79,6 +93,19 @@ bool Pacman::update(float deltaTime) {
     targetPosition = maze.getWorldPosition(targetTile);
   }
 
+  if (collectedBerry) {
+    powered = true;
+    poweredTimer = 10.f;
+  }
+
+  if (powered) {
+    poweredTimer -= deltaTime;
+    if (poweredTimer <= 0.f) {
+      poweredTimer = 0.f;
+      powered = false;
+    }
+  }
+
   const float dx = targetPosition.x - position.x;
   const float dy = targetPosition.y - position.y;
   const float distance = std::sqrt(dx * dx + dy * dy);
@@ -94,10 +121,15 @@ bool Pacman::update(float deltaTime) {
       position.y += (dy / distance) * movement;
     }
 
-    mouthTimer += deltaTime;
-    if (mouthTimer >= 0.1f) {
+    if (collectedPellet) {
+      mouthOpen = false;
       mouthTimer = 0.f;
-      mouthOpen = !mouthOpen;
+    } else if (!mouthOpen) {
+      mouthTimer += deltaTime;
+      if (mouthTimer >= 0.1f) {
+        mouthOpen = true;
+        mouthTimer = 0.f;
+      }
     }
   } else {
     mouthOpen = true;
@@ -109,7 +141,10 @@ bool Pacman::update(float deltaTime) {
 }
 
 void Pacman::updateSprite() {
-  sprite.setTexture(mouthOpen ? openTexture : closedTexture, true);
+  const sf::Texture &open = powered ? poweredOpenTexture : openTexture;
+  const sf::Texture &closed = powered ? poweredClosedTexture : closedTexture;
+
+  sprite.setTexture(mouthOpen ? open : closed, true);
   sprite.setOrigin(sprite.getLocalBounds().getCenter());
   sprite.setPosition(position);
 
@@ -122,6 +157,8 @@ void Pacman::updateSprite() {
   else if (direction == sf::Vector2i{0, 1})
     sprite.setRotation(sf::degrees(90.f));
 }
+
+bool Pacman::isPowered() const { return powered; }
 
 sf::Vector2i Pacman::getTile() const { return currentTile; }
 

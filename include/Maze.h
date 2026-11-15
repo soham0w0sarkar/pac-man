@@ -11,7 +11,6 @@ public:
   void centerIn(sf::Vector2u windowSize);
 
   sf::Vector2i getPacmanSpawn() const;
-  sf::Vector2i getPlayerSpawn() const { return getPacmanSpawn(); }
   sf::Vector2i getGhostSpawn() const;
   int getRows() const;
   int getColumns() const;
