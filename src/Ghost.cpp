@@ -9,31 +9,60 @@ namespace {
 const sf::Vector2i kDirs[] = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
 }
 
-Ghost::Ghost(const Maze &maze, sf::Color color)
-    : maze(maze), sprite(texture) {
-  loadTexture(color);
+Ghost::Ghost(const Maze &maze, GhostId id, sf::Color color)
+    : maze(maze), id(id), color(color), sprite(texture), eyesSprite(eyesTexture) {
+  loadTexture();
   sprite.setOrigin(sprite.getLocalBounds().getCenter());
+  eyesSprite.setOrigin(eyesSprite.getLocalBounds().getCenter());
+}
+
+GhostId Ghost::getId() const { return id; }
+
+sf::Vector2i Ghost::spawnTile() const {
+  const sf::Vector2i base = maze.getGhostSpawn();
+  switch (id) {
+  case GhostId::Blinky:
+    return base;
+  case GhostId::Pinky:
+    return {base.x - 1, base.y};
+  case GhostId::Inky:
+    return {base.x + 1, base.y};
+  case GhostId::Clyde:
+    return {base.x, base.y + 1};
+  }
+  return base;
 }
 
 void Ghost::spawn() {
-  currentTile = maze.getGhostSpawn();
+  currentTile = spawnTile();
   targetTile = currentTile;
   direction = {0, 0};
   position = maze.getWorldPosition(currentTile);
   targetPosition = position;
-  sprite.setPosition(position);
+  syncSprites();
 }
 
-void Ghost::loadTexture(sf::Color color) {
+void Ghost::loadTexture() {
   const auto path = findAsset("assets/sprites/ghost.png");
+  const auto eyesPath = findAsset("assets/sprites/ghost_eyes.png");
+
   if (!path || !texture.loadFromFile(*path)) {
     std::cerr << "Failed to load ghost.png\n";
-    return;
+  }
+  if (!eyesPath || !eyesTexture.loadFromFile(*eyesPath)) {
+    std::cerr << "Failed to load ghost_eyes.png\n";
   }
 
   texture.setSmooth(false);
+  eyesTexture.setSmooth(false);
   sprite.setTexture(texture, true);
-  (void)color;
+  eyesSprite.setTexture(eyesTexture, true);
+  sprite.setColor(color);
+}
+
+void Ghost::syncSprites() {
+  sprite.setPosition(position);
+  eyesSprite.setPosition(position);
 }
 
 void Ghost::chooseDirection() {
@@ -54,7 +83,6 @@ void Ghost::chooseDirection() {
     options.push_back(dir);
   }
 
-  // Dead end: allow reversing
   if (options.empty()) {
     for (const auto &dir : kDirs) {
       const int nextRow = currentTile.y + dir.y;
@@ -97,10 +125,13 @@ void Ghost::update(float deltaTime) {
     }
   }
 
-  sprite.setPosition(position);
+  syncSprites();
 }
 
-void Ghost::render(sf::RenderWindow &window) { window.draw(sprite); }
+void Ghost::render(sf::RenderWindow &window) {
+  window.draw(sprite);
+  window.draw(eyesSprite);
+}
 
 sf::Vector2i Ghost::getTile() const { return currentTile; }
 

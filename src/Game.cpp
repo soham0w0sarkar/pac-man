@@ -6,10 +6,10 @@
 
 Game::Game()
     : window(sf::VideoMode::getDesktopMode(), "Pac-Man", sf::State::Fullscreen),
-      pacman(maze), titleText(font), ghost(maze, sf::Color::Red) {
+      pacman(maze), titleText(font), ghosts(maze) {
   maze.centerIn(window.getSize());
   pacman.spawn(maze);
-  ghost.spawn();
+  ghosts.spawnAll();
   loadFont();
   sounds.playStart();
 }
@@ -78,13 +78,17 @@ void Game::update() {
     sounds.playPower();
   }
 
-  ghost.update(deltaTime);
+  ghosts.update(deltaTime);
 
-  if ((ghost.getPosition() - pacman.getPosition()).length() <
-      Maze::TILE_SIZE * 0.5f) {
+  for (Ghost *ghost : ghosts.all()) {
+    if ((ghost->getPosition() - pacman.getPosition()).length() >=
+        Maze::TILE_SIZE * 0.5f) {
+      continue;
+    }
+
     if (pacman.isPowered()) {
       setScore(score + 200);
-      ghost.spawn();
+      ghost->spawn();
       sounds.playEatGhost();
     } else {
       pacman.spawn(maze);
@@ -92,13 +96,14 @@ void Game::update() {
       sounds.playDeath();
 
       const sf::Vector2i pacmanSpawn = maze.getPacmanSpawn();
-      const sf::Vector2i ghostTile = ghost.getTile();
+      const sf::Vector2i ghostTile = ghost->getTile();
       const int dx = ghostTile.x - pacmanSpawn.x;
       const int dy = ghostTile.y - pacmanSpawn.y;
       if (dx * dx + dy * dy <= 5 * 5) {
-        ghost.spawn();
+        ghost->spawn();
       }
     }
+    break;
   }
 }
 
@@ -106,7 +111,7 @@ void Game::render() {
   window.clear(sf::Color::Black);
   maze.render(window);
   pacman.render(window);
-  ghost.render(window);
+  ghosts.render(window);
   window.draw(titleText);
   if (scoreText) {
     window.draw(*scoreText);

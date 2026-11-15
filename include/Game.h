@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Ghost.h"
+#include <GhostManager.h>
 #include <Maze.h>
 #include <Pacman.h>
 #include <SFML/Graphics.hpp>
@@ -17,7 +17,7 @@ private:
 
   Maze maze;
   Pacman pacman;
-  Ghost ghost;
+  GhostManager ghosts;
   Sounds sounds;
   sf::Clock clock;
 

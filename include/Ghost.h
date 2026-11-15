@@ -3,10 +3,13 @@
 #include <Maze.h>
 #include <SFML/Graphics.hpp>
 
+enum class GhostId { Blinky, Pinky, Inky, Clyde };
+
 class Ghost {
 public:
-  Ghost(const Maze &maze, sf::Color color);
+  Ghost(const Maze &maze, GhostId id, sf::Color color);
 
+  GhostId getId() const;
   void spawn();
   void update(float deltaTime);
   void render(sf::RenderWindow &window);
@@ -15,9 +18,13 @@ public:
 
 private:
   const Maze &maze;
+  GhostId id;
+  sf::Color color;
 
   sf::Texture texture;
+  sf::Texture eyesTexture;
   sf::Sprite sprite;
+  sf::Sprite eyesSprite;
 
   sf::Vector2f position;
   sf::Vector2f targetPosition;
@@ -29,6 +36,8 @@ private:
 
   float speed = 100.0f;
 
-  void loadTexture(sf::Color color);
+  void loadTexture();
   void chooseDirection();
+  sf::Vector2i spawnTile() const;
+  void syncSprites();
 };
