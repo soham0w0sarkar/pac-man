@@ -66,15 +66,14 @@ void Pacman::handleInput() {
     requestedDirection = {1, 0};
 }
 
-bool Pacman::update(float deltaTime) {
-  bool collectedPellet = false;
-  bool collectedBerry = false;
+PacmanUpdate Pacman::update(float deltaTime) {
+  PacmanUpdate result;
 
   if (position == targetPosition) {
     currentTile = targetTile;
 
-    collectedPellet = maze.collectPellet(currentTile.y, currentTile.x);
-    collectedBerry = maze.collectBerry(currentTile.y, currentTile.x);
+    result.atePellet = maze.collectPellet(currentTile.y, currentTile.x);
+    result.ateBerry = maze.collectBerry(currentTile.y, currentTile.x);
 
     const int nextReqRow = currentTile.y + requestedDirection.y;
     const int nextReqCol = currentTile.x + requestedDirection.x;
@@ -95,7 +94,7 @@ bool Pacman::update(float deltaTime) {
     targetPosition = maze.getWorldPosition(targetTile);
   }
 
-  if (collectedBerry) {
+  if (result.ateBerry) {
     powered = true;
     poweredTimer = 10.f;
     speed = 200.f;
@@ -125,7 +124,7 @@ bool Pacman::update(float deltaTime) {
       position.y += (dy / distance) * movement;
     }
 
-    if (collectedPellet) {
+    if (result.atePellet) {
       mouthOpen = false;
       mouthTimer = 0.f;
     } else if (!mouthOpen) {
@@ -141,7 +140,7 @@ bool Pacman::update(float deltaTime) {
   }
 
   updateSprite();
-  return collectedPellet;
+  return result;
 }
 
 void Pacman::updateSprite() {

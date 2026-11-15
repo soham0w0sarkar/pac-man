@@ -5,22 +5,22 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System)
+find_package(SFML 3 REQUIRED COMPONENTS Graphics Window System Audio)
 
 add_executable(PacMan
   src/main.cpp
   src/Game.cpp
-  src/Berry.cpp
   src/Ghost.cpp
   src/GhostManager.cpp
   src/Maze.cpp
   src/Pathfinding.cpp
-  src/Pellet.cpp
   src/Pacman.cpp
+  src/Sounds.cpp
 )
 
 target_include_directories(PacMan PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(PacMan PRIVATE SFML::Graphics SFML::Window SFML::System)
+target_link_libraries(PacMan PRIVATE SFML::Graphics SFML::Window SFML::System
+                                      SFML::Audio)
 
 
 add_custom_target(copy_assets ALL

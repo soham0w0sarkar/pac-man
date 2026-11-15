@@ -11,6 +11,7 @@ Game::Game()
   pacman.spawn(maze);
   ghost.spawn();
   loadFont();
+  sounds.playStart();
 }
 
 void Game::loadFont() {
@@ -39,6 +40,15 @@ void Game::loadFont() {
   scoreText->setPosition({rightEdge, 64.f});
 }
 
+void Game::setScore(int value) {
+  score = value;
+  if (scoreText) {
+    scoreText->setString("Score: " + std::to_string(score));
+    const auto bounds = scoreText->getLocalBounds();
+    scoreText->setOrigin({bounds.size.x, 0.f});
+  }
+}
+
 void Game::run() {
   while (window.isOpen()) {
     processEvents();
@@ -59,14 +69,13 @@ void Game::update() {
   const float deltaTime = clock.restart().asSeconds();
   pacman.handleInput();
 
-  if (pacman.update(deltaTime)) {
-    score += 10;
-
-    if (scoreText) {
-      scoreText->setString("Score: " + std::to_string(score));
-      const auto bounds = scoreText->getLocalBounds();
-      scoreText->setOrigin({bounds.size.x, 0.f});
-    }
+  const PacmanUpdate pacmanUpdate = pacman.update(deltaTime);
+  if (pacmanUpdate.atePellet) {
+    setScore(score + 10);
+    sounds.playChomp();
+  }
+  if (pacmanUpdate.ateBerry) {
+    sounds.playPower();
   }
 
   ghost.update(deltaTime);
@@ -74,10 +83,13 @@ void Game::update() {
   if ((ghost.getPosition() - pacman.getPosition()).length() <
       Maze::TILE_SIZE * 0.5f) {
     if (pacman.isPowered()) {
-      score += 200;
+      setScore(score + 200);
       ghost.spawn();
+      sounds.playEatGhost();
     } else {
       pacman.spawn(maze);
+      setScore(0);
+      sounds.playDeath();
 
       const sf::Vector2i pacmanSpawn = maze.getPacmanSpawn();
       const sf::Vector2i ghostTile = ghost.getTile();

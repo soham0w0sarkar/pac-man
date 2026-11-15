@@ -3,13 +3,18 @@
 #include <Maze.h>
 #include <SFML/Graphics.hpp>
 
+struct PacmanUpdate {
+  bool atePellet = false;
+  bool ateBerry = false;
+};
+
 class Pacman {
 public:
   Pacman(Maze &maze);
 
   void spawn(Maze &maze);
   void handleInput();
-  bool update(float deltaTime);
+  PacmanUpdate update(float deltaTime);
   void render(sf::RenderWindow &window);
   bool isPowered() const;
   sf::Vector2i getTile() const;
