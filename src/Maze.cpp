@@ -1,15 +1,31 @@
+#include <Assets.h>
 #include <Maze.h>
+
 #include <iostream>
 
 Maze::Maze() {
-  std::cout << "Creating maze...\n";
   createMaze();
+  loadTextures();
+}
 
-  std::cout << "Rows: " << grid.size() << "\n";
+void Maze::loadTextures() {
+  const auto wallPath = findAsset("assets/sprites/wall.png");
+  const auto pelletPath = findAsset("assets/sprites/pellet.png");
+  const auto berryPath = findAsset("assets/sprites/berry.png");
 
-  for (const auto &row : grid) {
-    std::cout << "Columns: " << row.size() << "\n";
+  if (!wallPath || !wallTexture.loadFromFile(*wallPath)) {
+    std::cerr << "Failed to load wall.png\n";
   }
+  if (!pelletPath || !pelletTexture.loadFromFile(*pelletPath)) {
+    std::cerr << "Failed to load pellet.png\n";
+  }
+  if (!berryPath || !berryTexture.loadFromFile(*berryPath)) {
+    std::cerr << "Failed to load berry.png\n";
+  }
+
+  wallTexture.setSmooth(false);
+  pelletTexture.setSmooth(false);
+  berryTexture.setSmooth(false);
 }
 
 void Maze::createMaze() {
@@ -47,7 +63,7 @@ void Maze::createMaze() {
       {1, 1, 1, 1, 1, 1, 2, 1, 1, 0, 1, 0, 0, 0,
        0, 0, 0, 1, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1},
       {0, 0, 0, 0, 0, 1, 2, 1, 1, 0, 1, 1, 1, 1,
-       1, 1, 1, 1, 0, 1, 1, 2, 1, 0, 0, 0, 0, 0}, 
+       1, 1, 1, 1, 0, 1, 1, 2, 1, 0, 0, 0, 0, 0},
       {0, 0, 0, 0, 0, 1, 2, 1, 1, 0, 0, 0, 0, 0,
        0, 0, 0, 0, 0, 1, 1, 2, 1, 0, 0, 0, 0, 0},
       {0, 0, 0, 0, 0, 1, 2, 1, 1, 0, 1, 1, 1, 1,
@@ -60,7 +76,7 @@ void Maze::createMaze() {
        1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1},
       {1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1,
        1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1},
-      {1, 3, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 0,
+      {1, 3, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 5,
        0, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 3, 1},
       {1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1,
        1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 1},
@@ -79,53 +95,83 @@ void Maze::createMaze() {
   };
 }
 
+void Maze::centerIn(sf::Vector2u windowSize) {
+  const float mazeWidth = static_cast<float>(getColumns() * TILE_SIZE);
+  const float mazeHeight = static_cast<float>(getRows() * TILE_SIZE);
+
+  offset = {(static_cast<float>(windowSize.x) - mazeWidth) * 0.5f,
+            (static_cast<float>(windowSize.y) - mazeHeight) * 0.5f};
+}
+
 void Maze::render(sf::RenderWindow &window) {
-  sf::RectangleShape wall(sf::Vector2f(static_cast<float>(TILE_SIZE),
-                                       static_cast<float>(TILE_SIZE)));
+  sf::Sprite wall(wallTexture);
+  sf::Sprite pellet(pelletTexture);
+  sf::Sprite berry(berryTexture);
 
-  wall.setFillColor(sf::Color::Blue);
-
-  sf::CircleShape pellet(3.f);
-  pellet.setOrigin({3.f, 3.f});
-  pellet.setFillColor(sf::Color::White);
-
-  sf::CircleShape powerPellet(6.f);
-  powerPellet.setOrigin({6.f, 6.f});
-  powerPellet.setFillColor(sf::Color::White);
+  wall.setOrigin(wall.getLocalBounds().getCenter());
+  pellet.setOrigin(pellet.getLocalBounds().getCenter());
+  berry.setOrigin(berry.getLocalBounds().getCenter());
 
   for (std::size_t row = 0; row < grid.size(); row++) {
     for (std::size_t col = 0; col < grid[row].size(); col++) {
-      float x = static_cast<float>(col * TILE_SIZE);
-      float y = static_cast<float>(row * TILE_SIZE);
+      const sf::Vector2f center =
+          getWorldPosition(static_cast<int>(row), static_cast<int>(col));
 
       if (grid[row][col] == 1) {
-        wall.setPosition({x, y});
+        wall.setPosition(center);
         window.draw(wall);
       } else if (grid[row][col] == 2) {
-        pellet.setPosition({x + TILE_SIZE / 2.f, y + TILE_SIZE / 2.f});
-
+        pellet.setPosition(center);
         window.draw(pellet);
       } else if (grid[row][col] == 3) {
-        powerPellet.setPosition({x + TILE_SIZE / 2.f, y + TILE_SIZE / 2.f});
-
-        window.draw(powerPellet);
+        berry.setPosition(center);
+        window.draw(berry);
       }
     }
   }
 }
 
-int Maze::getRows() {
-  return grid.size();
-}
+int Maze::getRows() const { return static_cast<int>(grid.size()); }
 
-int Maze::getColumns() {
-  return grid[0].size();
-}
+int Maze::getColumns() const { return static_cast<int>(grid[0].size()); }
 
-bool Maze::isWall(int row, int column) {
+bool Maze::isWall(int row, int column) const {
+  if (row < 0 || column < 0 || row >= getRows() || column >= getColumns()) {
+    return true;
+  }
   return grid[row][column] == 1;
 }
 
-int Maze::getWorldPosition(int row, int column) {
-  return row * TILE_SIZE + column * TILE_SIZE;
+sf::Vector2f Maze::getWorldPosition(int row, int column) const {
+  return offset +
+         sf::Vector2f(static_cast<float>(column * TILE_SIZE) + TILE_SIZE / 2.f,
+                      static_cast<float>(row * TILE_SIZE) + TILE_SIZE / 2.f);
+}
+
+sf::Vector2f Maze::getWorldPosition(sf::Vector2i tile) const {
+  return getWorldPosition(tile.y, tile.x);
+}
+
+sf::Vector2i Maze::getPlayerSpawn() const {
+  for (int row = 0; row < getRows(); row++) {
+    for (int col = 0; col < getColumns(); col++) {
+      if (grid[row][col] == 5) {
+        return {col, row};
+      }
+    }
+  }
+
+  return {1, 1};
+}
+
+bool Maze::collectPellet(int row, int col) {
+  if (row < 0 || row >= getRows() || col < 0 || col >= getColumns())
+    return false;
+
+  if (grid[row][col] == 2) {
+    grid[row][col] = 0;
+    return true;
+  }
+
+  return false;
 }
