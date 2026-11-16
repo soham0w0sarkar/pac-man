@@ -2,19 +2,19 @@
 
 A small C++ / SFML Pac-Man-style game built from scratch — maze, movement, ghosts, scoring, power-ups, and sound.
 
+![Pac-Man gameplay demo](assets/demo.gif)
+
 ## Status
 
-- [x] Fullscreen window + game loop
-- [x] Classic-style maze (walls, pellets, berries)
+- [x] Windowed game loop with fitted maze view
+- [x] Classic-style maze (walls, pellets, berries, tunnels)
 - [x] Pac-Man movement, chomp animation, keyboard controls
-- [x] Score + title HUD
-- [x] Roaming ghost with sprite and house spawn
+- [x] Score, high score, lives, and level HUD
+- [x] Four ghosts with chase / scatter / frightened / eaten AI
 - [x] Collision (death / eat ghost when powered)
-- [x] Berry power-up (faster, cyan sprites, eat ghost)
+- [x] Berry power-up, flash warning, and level-scaled duration
+- [x] Lives, game over, level clear, pause (Esc)
 - [x] Sound effects (chomp, power, eat ghost, death, start)
-- [ ] Ghost AI / pathfinding
-- [ ] Lives / game over
-- [ ] Multiple ghosts
 
 ## Requirements
 
@@ -43,7 +43,9 @@ Assets are copied into `build/` on every build.
 | Key | Action |
 |-----|--------|
 | Arrow keys | Move Pac-Man |
-| Eat berry | Power up (~10s): faster, can eat the ghost |
+| Esc | Pause / resume (quit from game over) |
+| Enter / Space | Restart after game over |
+| Eat berry | Power up: faster, can eat ghosts |
 
 ## Layout
 
