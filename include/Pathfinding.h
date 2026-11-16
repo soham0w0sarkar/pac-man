@@ -11,12 +11,17 @@ struct PathContext {
   sf::Vector2i ghostDirection;
   sf::Vector2i pacmanTile;
   sf::Vector2i pacmanDirection{0, 0};
+  sf::Vector2i blinkyTile{0, 0};
+  GhostMode mode = GhostMode::Chase;
+  bool cruiseElroy = false;
+  bool allowHouse = false;
 };
 
 class Pathfinding {
 public:
   explicit Pathfinding(const Maze &maze);
   sf::Vector2i nextDirection(GhostId id, const PathContext &ctx);
+  sf::Vector2i directionTo(const PathContext &ctx, sf::Vector2i target);
 
 private:
   sf::Vector2i blinky(const PathContext &ctx);
