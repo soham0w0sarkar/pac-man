@@ -18,6 +18,7 @@ public:
   void render(sf::RenderWindow &window);
   bool isPowered() const;
   sf::Vector2i getTile() const;
+  sf::Vector2i getDirection() const;
   sf::Vector2f getPosition() const;
 
 private:

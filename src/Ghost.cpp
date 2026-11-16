@@ -1,5 +1,6 @@
 #include <Assets.h>
 #include <Ghost.h>
+#include <Pathfinding.h>
 
 #include <cmath>
 #include <iostream>
@@ -65,7 +66,15 @@ void Ghost::syncSprites() {
   eyesSprite.setPosition(position);
 }
 
-void Ghost::chooseDirection() {
+void Ghost::chooseDirection(Pathfinding &pathfinding, sf::Vector2i pacmanTile,
+                            sf::Vector2i pacmanDirection) {
+  if (id == GhostId::Blinky) {
+    const PathContext ctx{maze, currentTile, direction, pacmanTile,
+                          pacmanDirection};
+    direction = pathfinding.nextDirection(id, ctx);
+    return;
+  }
+
   std::vector<sf::Vector2i> options;
   options.reserve(4);
 
@@ -101,10 +110,11 @@ void Ghost::chooseDirection() {
   direction = options[static_cast<std::size_t>(std::rand()) % options.size()];
 }
 
-void Ghost::update(float deltaTime) {
+void Ghost::update(float deltaTime, Pathfinding &pathfinding,
+                   sf::Vector2i pacmanTile, sf::Vector2i pacmanDirection) {
   if (position == targetPosition) {
     currentTile = targetTile;
-    chooseDirection();
+    chooseDirection(pathfinding, pacmanTile, pacmanDirection);
 
     targetTile = {currentTile.x + direction.x, currentTile.y + direction.y};
     targetPosition = maze.getWorldPosition(targetTile);

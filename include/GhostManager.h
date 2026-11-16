@@ -5,12 +5,15 @@
 #include <SFML/Graphics.hpp>
 #include <array>
 
+class Pathfinding;
+
 class GhostManager {
 public:
   explicit GhostManager(const Maze &maze);
 
   void spawnAll();
-  void update(float deltaTime);
+  void update(float deltaTime, Pathfinding &pathfinding, sf::Vector2i pacmanTile,
+              sf::Vector2i pacmanDirection);
   void render(sf::RenderWindow &window);
 
   std::array<Ghost *, 4> all();

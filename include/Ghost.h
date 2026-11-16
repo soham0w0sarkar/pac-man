@@ -5,13 +5,16 @@
 
 enum class GhostId { Blinky, Pinky, Inky, Clyde };
 
+class Pathfinding;
+
 class Ghost {
 public:
   Ghost(const Maze &maze, GhostId id, sf::Color color);
 
   GhostId getId() const;
   void spawn();
-  void update(float deltaTime);
+  void update(float deltaTime, Pathfinding &pathfinding, sf::Vector2i pacmanTile,
+              sf::Vector2i pacmanDirection);
   void render(sf::RenderWindow &window);
   sf::Vector2i getTile() const;
   sf::Vector2f getPosition() const;
@@ -37,7 +40,8 @@ private:
   float speed = 100.0f;
 
   void loadTexture();
-  void chooseDirection();
+  void chooseDirection(Pathfinding &pathfinding, sf::Vector2i pacmanTile,
+                       sf::Vector2i pacmanDirection);
   sf::Vector2i spawnTile() const;
   void syncSprites();
 };

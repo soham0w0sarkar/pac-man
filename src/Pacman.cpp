@@ -165,4 +165,6 @@ bool Pacman::isPowered() const { return powered; }
 
 sf::Vector2i Pacman::getTile() const { return currentTile; }
 
+sf::Vector2i Pacman::getDirection() const { return direction; }
+
 sf::Vector2f Pacman::getPosition() const { return position; }

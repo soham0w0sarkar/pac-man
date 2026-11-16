@@ -78,7 +78,8 @@ void Game::update() {
     sounds.playPower();
   }
 
-  ghosts.update(deltaTime);
+  ghosts.update(deltaTime, pathfinding, pacman.getTile(),
+                pacman.getDirection());
 
   for (Ghost *ghost : ghosts.all()) {
     if ((ghost->getPosition() - pacman.getPosition()).length() >=

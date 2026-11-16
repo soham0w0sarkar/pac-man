@@ -12,9 +12,11 @@ void GhostManager::spawnAll() {
   }
 }
 
-void GhostManager::update(float deltaTime) {
+void GhostManager::update(float deltaTime, Pathfinding &pathfinding,
+                          sf::Vector2i pacmanTile,
+                          sf::Vector2i pacmanDirection) {
   for (Ghost *ghost : all()) {
-    ghost->update(deltaTime);
+    ghost->update(deltaTime, pathfinding, pacmanTile, pacmanDirection);
   }
 }
 
