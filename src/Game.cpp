@@ -6,7 +6,7 @@
 
 Game::Game()
     : window(sf::VideoMode::getDesktopMode(), "Pac-Man", sf::State::Fullscreen),
-      pacman(maze), titleText(font), ghosts(maze) {
+      pacman(maze), titleText(font), ghosts(maze), pathfinding(maze) {
   maze.centerIn(window.getSize());
   pacman.spawn(maze);
   ghosts.spawnAll();

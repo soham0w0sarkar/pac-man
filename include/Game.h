@@ -3,6 +3,7 @@
 #include <GhostManager.h>
 #include <Maze.h>
 #include <Pacman.h>
+#include <Pathfinding.h>
 #include <SFML/Graphics.hpp>
 #include <Sounds.h>
 #include <optional>
@@ -18,6 +19,7 @@ private:
   Maze maze;
   Pacman pacman;
   GhostManager ghosts;
+  Pathfinding pathfinding;
   Sounds sounds;
   sf::Clock clock;
 
