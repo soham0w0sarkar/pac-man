@@ -5,7 +5,26 @@
 
 Maze::Maze() {
   createMaze();
+  initialGrid = grid;
+  recountPellets();
+  totalPelletCount = pelletCount;
   loadTextures();
+}
+
+void Maze::recountPellets() {
+  pelletCount = 0;
+  for (const auto &row : grid) {
+    for (int cell : row) {
+      if (cell == 2) {
+        ++pelletCount;
+      }
+    }
+  }
+}
+
+void Maze::resetPellets() {
+  grid = initialGrid;
+  recountPellets();
 }
 
 void Maze::loadTextures() {
@@ -95,12 +114,43 @@ void Maze::createMaze() {
   };
 }
 
-void Maze::centerIn(sf::Vector2u windowSize) {
-  const float mazeWidth = static_cast<float>(getColumns() * TILE_SIZE);
-  const float mazeHeight = static_cast<float>(getRows() * TILE_SIZE);
+bool Maze::isDoor(int row, int column) const {
+  return row == 9 && (column == 12 || column == 15);
+}
 
-  offset = {(static_cast<float>(windowSize.x) - mazeWidth) * 0.5f,
-            (static_cast<float>(windowSize.y) - mazeHeight) * 0.5f};
+bool Maze::isGhostHouse(int row, int column) const {
+  return row >= 11 && row <= 15 && column >= 9 && column <= 18;
+}
+
+bool Maze::isBlockedForPacman(int row, int column) const {
+  return isWall(row, column) || isDoor(row, column) ||
+         isGhostHouse(row, column);
+}
+
+bool Maze::isBlockedForGhost(int row, int column, bool allowHouse) const {
+  if (isWall(row, column)) {
+    return true;
+  }
+  if (!allowHouse && isGhostHouse(row, column)) {
+    return true;
+  }
+  return false;
+}
+
+bool Maze::isTunnelRow(int row) const { return row == 14; }
+
+sf::Vector2i Maze::wrapTile(sf::Vector2i tile) const {
+  if (tile.x < 0) {
+    tile.x = getColumns() - 1;
+  } else if (tile.x >= getColumns()) {
+    tile.x = 0;
+  }
+  return tile;
+}
+
+void Maze::centerIn(sf::Vector2u) {
+  // World origin stays at (0,0); Game fits the maze with a view.
+  offset = {0.f, 0.f};
 }
 
 void Maze::render(sf::RenderWindow &window) {
@@ -182,11 +232,18 @@ bool Maze::collectPellet(int row, int col) {
 
   if (grid[row][col] == 2) {
     grid[row][col] = 0;
+    if (pelletCount > 0) {
+      --pelletCount;
+    }
     return true;
   }
 
   return false;
 }
+
+int Maze::remainingPellets() const { return pelletCount; }
+
+int Maze::totalPellets() const { return totalPelletCount; }
 
 bool Maze::collectBerry(int row, int col) {
   if (row < 0 || row >= getRows() || col < 0 || col >= getColumns())
