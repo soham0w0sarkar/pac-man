@@ -47,11 +47,22 @@ void Pacman::spawn(Maze &maze) {
   requestedDirection = {0, 0};
   mouthOpen = true;
   mouthTimer = 0.f;
+  powered = false;
+  poweredTimer = 0.f;
+  speed = 150.f;
 
   position = maze.getWorldPosition(currentTile);
   targetPosition = position;
   updateSprite();
 }
+
+void Pacman::clearPower() {
+  powered = false;
+  poweredTimer = 0.f;
+  speed = 150.f;
+}
+
+void Pacman::setPowerDuration(float seconds) { powerDuration = seconds; }
 
 void Pacman::render(sf::RenderWindow &window) { window.draw(sprite); }
 
@@ -66,6 +77,19 @@ void Pacman::handleInput() {
     requestedDirection = {1, 0};
 }
 
+sf::Vector2i Pacman::nextTileAlong(sf::Vector2i dir) const {
+  sf::Vector2i next{currentTile.x + dir.x, currentTile.y + dir.y};
+  if (maze.isTunnelRow(currentTile.y) &&
+      (next.x < 0 || next.x >= maze.getColumns())) {
+    next = maze.wrapTile(next);
+  }
+  return next;
+}
+
+bool Pacman::canEnter(sf::Vector2i tile) const {
+  return !maze.isBlockedForPacman(tile.y, tile.x);
+}
+
 PacmanUpdate Pacman::update(float deltaTime) {
   PacmanUpdate result;
 
@@ -75,29 +99,32 @@ PacmanUpdate Pacman::update(float deltaTime) {
     result.atePellet = maze.collectPellet(currentTile.y, currentTile.x);
     result.ateBerry = maze.collectBerry(currentTile.y, currentTile.x);
 
-    const int nextReqRow = currentTile.y + requestedDirection.y;
-    const int nextReqCol = currentTile.x + requestedDirection.x;
-
     if (requestedDirection != sf::Vector2i{0, 0} &&
-        !maze.isWall(nextReqRow, nextReqCol)) {
+        canEnter(nextTileAlong(requestedDirection))) {
       direction = requestedDirection;
     }
 
-    const int nextRow = currentTile.y + direction.y;
-    const int nextCol = currentTile.x + direction.x;
-
-    if (maze.isWall(nextRow, nextCol)) {
+    if (!canEnter(nextTileAlong(direction))) {
       direction = {0, 0};
     }
 
-    targetTile = {currentTile.x + direction.x, currentTile.y + direction.y};
-    targetPosition = maze.getWorldPosition(targetTile);
+    if (direction == sf::Vector2i{0, 0}) {
+      targetTile = currentTile;
+      targetPosition = position;
+    } else {
+      targetTile = nextTileAlong(direction);
+      targetPosition = maze.getWorldPosition(targetTile);
+      if (std::abs(targetTile.x - currentTile.x) > 1) {
+        position = targetPosition;
+      }
+    }
   }
 
   if (result.ateBerry) {
     powered = true;
-    poweredTimer = 10.f;
+    poweredTimer = powerDuration;
     speed = 200.f;
+    result.powerStarted = true;
   }
 
   if (powered) {
@@ -106,6 +133,7 @@ PacmanUpdate Pacman::update(float deltaTime) {
       poweredTimer = 0.f;
       powered = false;
       speed = 150.f;
+      result.powerEnded = true;
     }
   }
 
@@ -162,6 +190,8 @@ void Pacman::updateSprite() {
 }
 
 bool Pacman::isPowered() const { return powered; }
+
+float Pacman::powerRemaining() const { return poweredTimer; }
 
 sf::Vector2i Pacman::getTile() const { return currentTile; }
 

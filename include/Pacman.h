@@ -6,6 +6,8 @@
 struct PacmanUpdate {
   bool atePellet = false;
   bool ateBerry = false;
+  bool powerStarted = false;
+  bool powerEnded = false;
 };
 
 class Pacman {
@@ -17,6 +19,9 @@ public:
   PacmanUpdate update(float deltaTime);
   void render(sf::RenderWindow &window);
   bool isPowered() const;
+  float powerRemaining() const;
+  void setPowerDuration(float seconds);
+  void clearPower();
   sf::Vector2i getTile() const;
   sf::Vector2i getDirection() const;
   sf::Vector2f getPosition() const;
@@ -42,9 +47,12 @@ private:
   float speed = 150.0f;
   float mouthTimer = 0.f;
   float poweredTimer = 0.f;
+  float powerDuration = 6.f;
   bool mouthOpen = true;
   bool powered = false;
 
   void loadTextures();
   void updateSprite();
+  sf::Vector2i nextTileAlong(sf::Vector2i dir) const;
+  bool canEnter(sf::Vector2i tile) const;
 };
